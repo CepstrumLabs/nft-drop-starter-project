@@ -3,6 +3,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
 import { MintLayout, TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 import { sendTransactions } from './connection';
+import CountdownTimer from '../CountdownTimer';
 import './CandyMachine.css';
 import {
   candyMachineProgram,
@@ -22,6 +23,8 @@ const opts = {
 const CandyMachine = ({ walletAddress }) => {
 
   const [candyMachine, setCandyMachine] = useState(null);
+  const [refreshMint, setRefreshMint] = useState(0);
+  
 
   const getCandyMachineCreator = async (candyMachine) => {
     const candyMachineID = new PublicKey(candyMachine);
@@ -171,6 +174,30 @@ const CandyMachine = ({ walletAddress }) => {
       data: Buffer.from([]),
     });
   };
+
+  const mintTokenWrapper = async() => {
+    try {
+      setRefreshMint(refreshMint + 1);
+      console.log("refreshMint= " + refreshMint);
+      return await mintToken();
+      
+    } catch(error) {
+      console.log("Encountered error while minting token")
+      console.log(error)
+    }
+    return []
+  }
+
+  const renderDropTimer = () => {
+    const currentDate = new Date();
+    const dropDate = new Date(candyMachine.state.goLiveData * 1000);
+
+    if (currentDate < dropDate) {
+        console.log('Before drop date!');
+
+        return <CountdownTimer dropDate={dropDate} />;
+    }
+}
 
   const mintToken = async () => {
     const mint = web3.Keypair.generate();
@@ -387,11 +414,11 @@ const CandyMachine = ({ walletAddress }) => {
   return (
     candyMachine && (
     <div className="machine-container">
-      <p>Drop Date:{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>
+      {renderDropTimer()}
       <p>Items Minted: {`Items Minted: ${candyMachine.state.itemsRedeemed} / ${candyMachine.state.itemsAvailable}`}</p>
-      <button className="cta-button mint-button" onClick={mintToken}>
+      {candyMachine.state.itemsRedeemed === candyMachine.state.itemsAvailable ? (<p className="sub-text">Sold Out 🙊</p>): (<button className="cta-button mint-button" onClick={mintTokenWrapper}>
         Mint NFT
-      </button>
+      </button>)}
     </div>)
   );
 };
