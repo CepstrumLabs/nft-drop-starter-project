@@ -74,8 +74,8 @@ const App = () => {
     <div className="App">
       <div className="container">
         <div className="header-container">
-          <p className="header">🍭 Candy Drop</p>
-          <p className="sub-text">NFT drop machine with fair mint</p>
+          <p className="header">🤔 DopeThinkerz 🤔</p>
+          <p className="sub-text">7 DopeThinkerz have ascended into Solana devnet and ready to generate💡...</p>
           {/* Render your connect to wallet button right here */}
           {!walletAddress && renderNotConnectedContainer()}
         </div>

@@ -23,7 +23,7 @@ const opts = {
 const CandyMachine = ({ walletAddress }) => {
 
   const [candyMachine, setCandyMachine] = useState(null);
-  const [refreshMint, setRefreshMint] = useState(0);
+  const [isMinting, setIsMinting] = useState(false);
   
 
   const getCandyMachineCreator = async (candyMachine) => {
@@ -52,6 +52,9 @@ const CandyMachine = ({ walletAddress }) => {
     const candyMachine = await program.account.candyMachine.fetch(
       process.env.REACT_APP_CANDY_MACHINE_ID
     );
+    
+    console.log("Got Candy Machine state back, printing the data: ")
+    console.log(candyMachine.data)
 
     // Parse out all our metadata and log it
     const itemsAvailable = candyMachine.data.itemsAvailable.toNumber();
@@ -119,16 +122,16 @@ const CandyMachine = ({ walletAddress }) => {
   }
 
   const getMetadata = async (mint) => {
-    return (
-      await PublicKey.findProgramAddress(
+      const res = await PublicKey.findProgramAddress(
         [
           Buffer.from('metadata'),
           TOKEN_METADATA_PROGRAM_ID.toBuffer(),
           mint.toBuffer(),
         ],
         TOKEN_METADATA_PROGRAM_ID
-      )
-    )[0];
+      );
+      console.log(res)
+      return res[0]
   };
 
   const getMasterEdition = async (mint) => {
@@ -177,13 +180,14 @@ const CandyMachine = ({ walletAddress }) => {
 
   const mintTokenWrapper = async() => {
     try {
-      setRefreshMint(refreshMint + 1);
-      console.log("refreshMint= " + refreshMint);
-      return await mintToken();
-      
+      setIsMinting(true);
+      const response = await mintToken();
+      setIsMinting(false);
+      return response
     } catch(error) {
       console.log("Encountered error while minting token")
       console.log(error)
+      setIsMinting(false);
     }
     return []
   }
@@ -191,12 +195,14 @@ const CandyMachine = ({ walletAddress }) => {
   const renderDropTimer = () => {
     const currentDate = new Date();
     const dropDate = new Date(candyMachine.state.goLiveData * 1000);
-
+    console.log("currentDate= " + currentDate);
+    console.log("dropDate= " + dropDate);
+    console.log((dropDate < currentDate));
     if (currentDate < dropDate) {
         console.log('Before drop date!');
-
         return <CountdownTimer dropDate={dropDate} />;
     }
+    return <p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>;
 }
 
   const mintToken = async () => {
@@ -416,8 +422,9 @@ const CandyMachine = ({ walletAddress }) => {
     <div className="machine-container">
       {renderDropTimer()}
       <p>Items Minted: {`Items Minted: ${candyMachine.state.itemsRedeemed} / ${candyMachine.state.itemsAvailable}`}</p>
-      {candyMachine.state.itemsRedeemed === candyMachine.state.itemsAvailable ? (<p className="sub-text">Sold Out 🙊</p>): (<button className="cta-button mint-button" onClick={mintTokenWrapper}>
-        Mint NFT
+      {candyMachine.state.itemsRedeemed === candyMachine.state.itemsAvailable ? (<p className="sub-text">Sold Out 🙊</p>): (<button className="cta-button mint-button" onClick={mintTokenWrapper} disabled={isMinting}>
+        {!isMinting && "Mint 💎"}
+        {isMinting && "Minting... 🤩"}
       </button>)}
     </div>)
   );
