@@ -4,7 +4,7 @@ import twitterLogo from './assets/twitter-logo.svg';
 import CandyMachine from './CandyMachine';
 
 // Constants
-const TWITTER_HANDLE = '_buildspace';
+const TWITTER_HANDLE = '@cepstrumlabs';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
@@ -69,13 +69,12 @@ const App = () => {
     return () => window.removeEventListener('load', onLoad);
   }, []);
 
-
   return (
     <div className="App">
       <div className="container">
         <div className="header-container">
           <p className="header">🤔 DopeThinkerz 🤔</p>
-          <p className="sub-text">7 DopeThinkerz have ascended into Solana devnet and ready to generate💡...</p>
+          <p className="sub-text">7 DopeThinkerz have ascended into Solana's devnet and ready to generate💡...</p>
           {/* Render your connect to wallet button right here */}
           {!walletAddress && renderNotConnectedContainer()}
         </div>
@@ -87,7 +86,7 @@ const App = () => {
             href={TWITTER_LINK}
             target="_blank"
             rel="noreferrer"
-          >{`built on @${TWITTER_HANDLE}`}</a>
+          >{`built by @${TWITTER_HANDLE}`}</a>
         </div>
       </div>
     </div>
